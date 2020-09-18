@@ -1,3 +1,8 @@
+#include <SFE_BMP180.h>
+#include <Wire.h>
+
+SFE_BMP180 bmp180;
+double PresionNivelMar=1013.25;
 #define PARAM_FOCAL_LENGTH_MM 16
 #define REG_GYRO_PROC_XY   0x5C
 #define REG_GYRO_PROC_Z    0x5D
@@ -66,6 +71,9 @@ void setup()
 
 void loop()
 {
+  char status;
+  double T,P,A;
+
   while(1){
     do{
       poll_UM6_gyro_XY();
@@ -94,6 +102,25 @@ void loop()
     actual=millis();
     if((actual%10)==0 && actual!=0 && actual!=ant)
     {
+      status = bmp180.startTemperature();
+      if (status != 0)
+      {   
+        delay(status); //Pausa para que finalice la lectura
+        status = bmp180.getTemperature(T); 
+        if (status != 0)
+        {
+           status = bmp180.startPressure(3);
+           if (status != 0)
+           {        
+               delay(status);      
+               status = bmp180.getPressure(P,T);
+               if (status != 0)
+               {                  
+                  A= bmp180.altitude(P,PresionNivelMar);
+               }      
+            }      
+        }   
+      } 
       Serial.print(gyro.x_imp);
       Serial.print(",");
       Serial.print(gyro.y_imp);
@@ -110,7 +137,9 @@ void loop()
       Serial.print(",");
       Serial.print(euler.pitch_imp,3);
       Serial.print(",");
-      Serial.println(euler.yaw_imp,3);
+      Serial.print(euler.yaw_imp,3);
+      Serial.print(",");
+      Serial.println(A);
       ant=actual;
     }
   }
