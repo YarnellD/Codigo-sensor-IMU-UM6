@@ -259,12 +259,6 @@ boolean read_UM6(){
                    if (chksum == ('s' + 'n' + 'p' + (PT_HAS_DATA | PT_IS_BATCH | PT_BATCH_LEN_Z) + REG_GYRO_PROC_Z + data_sum)){
                     gyro.z = (data[1] | (data[0] << 8));
                     gyro.z_imp = gyro.z * GYRO_SCALE_FACTOR;
-                    if(actual>1000 &&actual<6000)
-                    {
-                      c_data_z++;
-                      acum_z+=gyro.z_imp;
-                      gan_z=acum_z/c_data_z;
-                    }
                     return true;
                    }
                    else {
